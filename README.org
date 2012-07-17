@@ -1,0 +1,13 @@
+* git-extras
+
+Handy git tools
+
+** git-svn-retag
+
+Create proper tags instead of bogus branches created from svn tags.
+
+** git-check-externals
+
+Verify if the URL in the svn external property matches the URL of
+a local repo.
+

@@ -1,0 +1,37 @@
+#!/usr/bin/env perl
+
+# Assume svn externals are manually maintained with "git svn clone".
+#
+# For svn externals in the current directory, show if the repo UR0L
+# differs from the svn external property URL (e.g. if the svn prop
+# is a tag, and the tag has changed.)
+
+use strict;
+use warnings;
+use Cwd;
+
+my $revision;
+foreach (qx(git svn info)) {
+    if (/^Revision: (.*)/) {
+        $revision = $1;
+    }
+}
+die "Unable to determine the SVN revision." if !defined $revision;
+
+my @externals = qx(git svn -r$revision propget svn:externals);
+foreach (@externals) {
+    if (my ($url, $dir) = /(\S+)\s+(\S+)/) {
+        $url =~ s|sublime-ssi|suboptimal.itgasiapac.com|;
+        my $cwd = getcwd();
+        chdir $dir;
+        my $current_remote_url = qx(git config svn-remote.svn.url);
+        chomp $current_remote_url;
+        if ($url ne $current_remote_url) {
+            print "Remote: $dir\n";
+            print "Old URL: $current_remote_url\n";
+            print "New URL: $url\n";
+        }
+        chdir $cwd;
+    }
+}
+
