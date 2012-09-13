@@ -19,11 +19,13 @@ die "Unable to determine the SVN revision." if !defined $revision;
 my @externals = qx(git svn -r$revision propget svn:externals);
 foreach (@externals) {
     if (my ($url, $dir) = /(\S+)\s+(\S+)/) {
-        $url =~ s|sublime-ssi|suboptimal.itgasiapac.com|;
+        $url =~ s!(sublime-ssi|subil.winisr.itgil.com)!suboptimal.itgasiapac.com!;
+        print "External URL: $url\n";
         my $cwd = getcwd();
         chdir $dir;
         my $current_remote_url = qx(git config svn-remote.svn.url);
         chomp $current_remote_url;
+        print "git-svn remote: $current_remote_url\n";
         if ($url ne $current_remote_url) {
             print "Remote: $dir\n";
             print "Old URL: $current_remote_url\n";
