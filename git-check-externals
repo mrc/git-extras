@@ -12,9 +12,7 @@ use Cwd;
 
 my $revision;
 foreach (qx(git svn info)) {
-    if (/^Revision: (.*)/) {
-        $revision = $1;
-    }
+    $revision = $1 if /^Revision: (.*)/;
 }
 die "Unable to determine the SVN revision." if !defined $revision;
 

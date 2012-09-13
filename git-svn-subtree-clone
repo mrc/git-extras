@@ -1,0 +1,19 @@
+#!/bin/sh
+# git svn-subtree-clone http://server/Some/Repo SubRepo
+#
+# Fetch a subtree, along with tags and branches.
+
+BASE_URL=$1
+PROJECT=$2
+
+TRUNK=${BASE_URL}/trunk/${PROJECT}
+
+mkdir -p $PROJECT
+cd $PROJECT
+git svn init $BASE_URL -T $TRUNK
+
+git config svn-remote.svn.tags "tags/*/${PROJECT}:refs/remotes/tags/*"
+git config svn-remote.svn.branches "branches/*/${PROJECT}:refs/remotes/*"
+
+git svn fetch
+git svn-retag
