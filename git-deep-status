@@ -1,0 +1,18 @@
+#!/usr/bin/zsh
+#
+# like status, but show status for checkouts deeper in the tree
+# (e.g. checkouts of svn externals)
+
+git_dir=${GIT_DIR:-$(git rev-parse -q --git-dir)}
+cd $git_dir(:h)
+repos=( **/.git(:h) )
+for d in $repos ; do
+    pushd $d
+    s=$(git status --porcelain)
+    if [[ -n $s ]] ; then
+        echo "$d"
+        # rerun with colour
+        git status $*
+    fi
+    popd
+done
