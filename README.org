@@ -6,8 +6,20 @@ Handy git tools
 
 Create proper tags instead of bogus branches created from svn tags.
 
-** git-check-externals
+** git-svn-subtree-clone
 
-Verify if the URL in the svn external property matches the URL of
-a local repo.
+Check out a subtree, along with tags and branches. Works if the
+repo structure has projects below trunk/tags/branches:
 
+  - trunk - Project
+  - tags - tag1 - Project
+  - branches - branchX - Project
+
+** git-svn-check-externals
+
+Verify if the "git svn clone"'d externals under pwd are up-to-date.
+
+** git-deep-status
+
+Like "git status" but runs for all git checkouts in the tree.
+Useful if you have "git svn clone"'d externals.
