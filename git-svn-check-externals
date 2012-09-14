@@ -2,9 +2,10 @@
 
 # Assume svn externals are manually maintained with "git svn clone".
 #
-# For svn externals in the current directory, show if the repo UR0L
-# differs from the svn external property URL (e.g. if the svn prop
-# is a tag, and the tag has changed.)
+# Check each svn external in the current directory's svn:externals.
+# For each external in the current directory's "svn:externals", compare
+# the external's svn revision to the currently checked out svn revision,
+# and complain if there are any differences.
 
 use strict;
 use warnings;
@@ -16,20 +17,39 @@ foreach (qx(git svn info)) {
 }
 die "Unable to determine the SVN revision." if !defined $revision;
 
+sub get_external_tag {
+    my ($url, $dir) = @_;
+    # TODO: extract patterns from svn-remote.svn.{fetch,branches,tags}
+    my ($branch) = m!branches/([^/]+)/!;
+    my ($tag) = m!(tags/[^/]+)!;
+    my ($trunk) = m!/(trunk)/!;
+    if (defined $tag || defined $branch || defined $trunk) {
+        return $tag || $branch || $trunk;
+    }
+    die "unable to get tag/branch/trunk from $url";
+}
+
 my @externals = qx(git svn -r$revision propget svn:externals);
 foreach (@externals) {
     if (my ($url, $dir) = /(\S+)\s+(\S+)/) {
-        $url =~ s!(sublime-ssi|subil.winisr.itgil.com)!suboptimal.itgasiapac.com!;
-        print "External URL: $url\n";
         my $cwd = getcwd();
         chdir $dir;
-        my $current_remote_url = qx(git config svn-remote.svn.url);
-        chomp $current_remote_url;
-        print "git-svn remote: $current_remote_url\n";
-        if ($url ne $current_remote_url) {
-            print "Remote: $dir\n";
-            print "Old URL: $current_remote_url\n";
-            print "New URL: $url\n";
+
+        my $current_rev = qx(git svn find-rev HEAD);
+        chomp $current_rev;
+
+        my $external_tag = get_external_tag($url, $dir);
+
+        my $external_rev = qx(git svn find-rev $external_tag);
+        chomp $external_rev;
+
+        print "$dir: $external_tag ($external_rev)\n";
+
+        if ($external_rev ne $current_rev) {
+            print "Mismatch for $dir\n";
+            print "\tcurrent rev:  $current_rev\n";
+            print "\texternal rev: $external_rev\n";
+            print "\texternal tag: $external_tag\n";
         }
         chdir $cwd;
     }
