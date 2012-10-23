@@ -15,13 +15,13 @@ open(LOG, ">>$git_dir/svn/retag.log");
 @svn_tags = grep(/^\s*tags\//, @branches);
 foreach (@svn_tags) {
     if (($ref, $tag) = /^\s*(tags\/(.*))/) {
-        ($commit, $parent) = split / /, qx(git show --pretty='format:%H %P' "$ref");
+        ($commit, $parent) = split / /, qx(git show -s --pretty='format:%H %P' "$ref");
 
         print LOG "moving $tag from $commit -> $parent\n";
         print "moving $tag from $commit -> $parent\n";
 
-        qx(git tag $tag $parent);
-        qx(git branch -rd $ref);
+        qx(git tag "$tag" "$parent");
+        qx(git branch -rd "$ref");
     }
 }
 
